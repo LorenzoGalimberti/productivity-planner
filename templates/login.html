@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Login — Planner Agent{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center">
+    <div class="w-full max-w-sm fade-in">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-ink rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <span class="text-accent font-bold text-2xl">P</span>
+            </div>
+            <h1 class="text-2xl font-bold text-ink">Planner<span class="text-accent">Agent</span></h1>
+            <p class="text-muted text-sm mt-1">AI Productivity Assistant</p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-surface rounded-2xl shadow-sm border border-gray-100 p-6">
+            {% if error %}
+            <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mb-4">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="post" action="/login/" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-ink mb-1.5">Username</label>
+                    <input type="text" name="username" required autofocus
+                        class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm
+                               focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent
+                               transition-all bg-paper">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-ink mb-1.5">Password</label>
+                    <input type="password" name="password" required
+                        class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm
+                               focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent
+                               transition-all bg-paper">
+                </div>
+                <button type="submit"
+                    class="w-full py-2.5 bg-ink text-white rounded-xl font-medium text-sm
+                           hover:bg-ink/90 active:scale-[0.98] transition-all shadow-sm">
+                    Sign in
+                </button>
+            </form>
+        </div>
+
+        <p class="text-center text-xs text-muted mt-6">
+            Create an account via <a href="/admin/" class="text-accent hover:underline">Django Admin</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

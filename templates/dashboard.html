@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Planner Agent{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- LEFT COLUMN: Prompt + Schedule -->
+    <div class="lg:col-span-2 space-y-6">
+
+        <!-- Prompt Card -->
+        <div class="bg-surface rounded-2xl shadow-sm border border-gray-100 p-5 fade-in">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-2 h-2 rounded-full bg-accent pulse-dot"></div>
+                <h2 class="font-bold text-sm uppercase tracking-wider text-muted">Ask the Agent</h2>
+                <span id="sessionBadge" class="hidden text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full ml-2">Follow-up mode</span>
+            </div>
+            <form id="planForm" class="space-y-3">
+                <textarea id="promptInput" rows="2" placeholder="e.g. Plan my day tomorrow, I have gym and an exam to study for..."
+                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm resize-none
+                           focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent
+                           transition-all bg-paper placeholder-gray-400"></textarea>
+                <div class="flex items-center gap-2">
+                    <select id="planType" class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-paper focus:outline-none focus:ring-2 focus:ring-accent/30">
+                        <option value="day">Day Plan</option>
+                        <option value="week">Week Plan</option>
+                        <option value="replan">Replan</option>
+                    </select>
+                    <input type="date" id="targetDate"
+                        class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-paper focus:outline-none focus:ring-2 focus:ring-accent/30">
+                    <button type="submit" id="submitBtn"
+                        class="ml-auto px-5 py-2 bg-ink text-white rounded-lg font-medium text-sm
+                               hover:bg-ink/90 active:scale-[0.97] transition-all shadow-sm flex items-center gap-2">
+                        <span id="btnText">Generate Plan</span>
+                        <svg id="btnSpinner" class="hidden w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="30 70" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <button type="button" id="newPlanBtn"
+                        class="px-4 py-2 bg-surface-alt text-muted rounded-lg font-medium text-sm
+                               hover:bg-gray-200 active:scale-[0.97] transition-all">
+                        New Plan
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Schedule Result -->
+        <div id="scheduleSection" class="hidden fade-in">
+            <div class="bg-surface rounded-2xl shadow-sm border border-gray-100 p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-bold text-sm uppercase tracking-wider text-muted">Generated Schedule</h2>
+                    <span id="scheduleSummary" class="text-xs text-muted font-mono"></span>
+                </div>
+
+                <!-- Summary -->
+                <div id="summaryBox" class="bg-surface-alt rounded-xl p-4 mb-5">
+                    <p id="summaryText" class="text-sm font-medium text-ink"></p>
+                    <p id="reasoningText" class="text-xs text-muted mt-1"></p>
+                </div>
+
+                <!-- Timeline -->
+                <div id="scheduleTimeline" class="relative schedule-line space-y-0 pl-10">
+                </div>
+
+                <!-- Warnings -->
+                <div id="warningsBox" class="hidden mt-4 space-y-2">
+                </div>
+
+                <!-- Unscheduled -->
+                <div id="unscheduledBox" class="hidden mt-4 bg-red-50 border border-red-100 rounded-xl p-4">
+                    <p class="text-sm font-medium text-red-700 mb-2">Couldn't fit:</p>
+                    <ul id="unscheduledList" class="text-sm text-red-600 space-y-1"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Tasks + Memory -->
+    <div class="space-y-6">
+
+        <!-- Quick Add Task -->
+        <div class="bg-surface rounded-2xl shadow-sm border border-gray-100 p-5 fade-in" style="animation-delay: 0.1s">
+            <h2 class="font-bold text-sm uppercase tracking-wider text-muted mb-3">Quick Add Task</h2>
+            <form id="addTaskForm" class="space-y-2">
+                <input type="text" id="taskTitle" placeholder="Task name..." required
+                    class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-paper
+                           focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all">
+                <div class="flex gap-2">
+                    <select id="taskPriority" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-paper">
+                        <option value="medium">Medium</option>
+                        <option value="urgent">Urgent</option>
+                        <option value="high">High</option>
+                        <option value="low">Low</option>
+                        <option value="optional">Optional</option>
+                    </select>
+                    <input type="number" id="taskMinutes" placeholder="min" min="5" max="480"
+                        class="w-20 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-paper text-center">
+                </div>
+                <button type="submit"
+                    class="w-full py-2 bg-accent/10 text-accent rounded-lg font-medium text-sm
+                           hover:bg-accent/20 active:scale-[0.98] transition-all">
+                    + Add Task
+                </button>
+            </form>
+        </div>
+
+        <!-- Task List -->
+        <div class="bg-surface rounded-2xl shadow-sm border border-gray-100 p-5 fade-in" style="animation-delay: 0.2s">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="font-bold text-sm uppercase tracking-wider text-muted">My Tasks</h2>
+                <span id="taskCount" class="text-xs font-mono text-muted bg-surface-alt px-2 py-0.5 rounded-full">0</span>
+            </div>
+            <div id="taskList" class="space-y-2 max-h-80 overflow-y-auto">
+                <p class="text-sm text-muted italic">Loading tasks...</p>
+            </div>
+        </div>
+
+        <!-- Memory Notes -->
+        <div class="bg-surface rounded-2xl shadow-sm border border-gray-100 p-5 fade-in" style="animation-delay: 0.3s">
+            <div class="flex items-center gap-2 mb-3">
+                <h2 class="font-bold text-sm uppercase tracking-wider text-muted">Agent Memory</h2>
+                <div class="w-1.5 h-1.5 rounded-full bg-green-400 pulse-dot"></div>
+            </div>
+            <div id="memoryList" class="space-y-2 max-h-60 overflow-y-auto">
+                <p class="text-sm text-muted italic">No memories yet</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const CSRF = '{{ csrf_token }}';
+const API = {
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+};
+
+// -- Session tracking for follow-ups --
+let currentSessionId = null;
+
+const TYPE_COLORS = {
+    task:    { bg: 'bg-blue-50',   border: 'border-blue-200',   dot: 'bg-focus',   text: 'text-blue-700' },
+    meeting: { bg: 'bg-purple-50', border: 'border-purple-200', dot: 'bg-meeting',  text: 'text-purple-700' },
+    gym:     { bg: 'bg-green-50',  border: 'border-green-200',  dot: 'bg-gym',      text: 'text-green-700' },
+    break:   { bg: 'bg-amber-50',  border: 'border-amber-200',  dot: 'bg-brk',      text: 'text-amber-700' },
+    focus:   { bg: 'bg-blue-50',   border: 'border-blue-300',   dot: 'bg-focus',    text: 'text-blue-700' },
+    study:   { bg: 'bg-indigo-50', border: 'border-indigo-200', dot: 'bg-indigo-500',text: 'text-indigo-700' },
+    personal:{ bg: 'bg-pink-50',   border: 'border-pink-200',   dot: 'bg-pink-500', text: 'text-pink-700' },
+    errand:  { bg: 'bg-orange-50', border: 'border-orange-200', dot: 'bg-orange-500',text: 'text-orange-700' },
+    other:   { bg: 'bg-gray-50',   border: 'border-gray-200',   dot: 'bg-gray-400', text: 'text-gray-700' },
+};
+
+const PRIORITY_BADGES = {
+    urgent:   'bg-red-100 text-red-700',
+    high:     'bg-orange-100 text-orange-700',
+    medium:   'bg-blue-100 text-blue-700',
+    low:      'bg-gray-100 text-gray-600',
+    optional: 'bg-gray-50 text-gray-400',
+};
+
+// Set default date to tomorrow
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+document.getElementById('targetDate').value = tomorrow.toISOString().split('T')[0];
+
+// -- Update session badge UI --
+function updateSessionBadge() {
+    const badge = document.getElementById('sessionBadge');
+    const btnText = document.getElementById('btnText');
+    if (currentSessionId) {
+        badge.classList.remove('hidden');
+        btnText.textContent = 'Modify Plan';
+    } else {
+        badge.classList.add('hidden');
+        btnText.textContent = 'Generate Plan';
+    }
+}
+
+// -- New Plan button --
+document.getElementById('newPlanBtn').addEventListener('click', () => {
+    currentSessionId = null;
+    document.getElementById('promptInput').value = '';
+    document.getElementById('scheduleSection').classList.add('hidden');
+    updateSessionBadge();
+});
+
+// -- Load tasks --
+async function loadTasks() {
+    try {
+        const res = await fetch('/api/tasks/', { headers: API.headers });
+        const tasks = await res.json();
+        const list = document.getElementById('taskList');
+        const count = document.getElementById('taskCount');
+
+        if (!tasks.length) {
+            list.innerHTML = '<p class="text-sm text-muted italic">No tasks yet. Add one above!</p>';
+            count.textContent = '0';
+            return;
+        }
+
+        count.textContent = tasks.length;
+        list.innerHTML = tasks.map(t => `
+            <div class="flex items-center gap-3 p-2.5 rounded-lg hover:bg-surface-alt transition-colors group">
+                <button onclick="completeTask('${t.id}')"
+                    class="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0
+                           hover:border-accent hover:bg-accent/10 transition-all
+                           flex items-center justify-center group-hover:border-gray-400">
+                </button>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium truncate">${t.title}</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <span class="text-xs px-1.5 py-0.5 rounded-full font-medium ${PRIORITY_BADGES[t.priority] || PRIORITY_BADGES.medium}">${t.priority}</span>
+                        ${t.estimated_minutes ? `<span class="text-xs text-muted font-mono">${t.estimated_minutes}m</span>` : ''}
+                        ${t.due_date ? `<span class="text-xs text-muted">${t.due_date}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error('Failed to load tasks:', e);
+    }
+}
+
+// -- Complete task --
+async function completeTask(id) {
+    await fetch(`/api/tasks/${id}/`, {
+        method: 'PATCH',
+        headers: API.headers,
+        body: JSON.stringify({ status: 'done' }),
+    });
+    loadTasks();
+}
+
+// -- Add task --
+document.getElementById('addTaskForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('taskTitle').value.trim();
+    if (!title) return;
+
+    await fetch('/api/tasks/create/', {
+        method: 'POST',
+        headers: API.headers,
+        body: JSON.stringify({
+            title,
+            priority: document.getElementById('taskPriority').value,
+            estimated_minutes: parseInt(document.getElementById('taskMinutes').value) || null,
+        }),
+    });
+
+    document.getElementById('taskTitle').value = '';
+    document.getElementById('taskMinutes').value = '';
+    loadTasks();
+});
+
+// -- Load memory notes --
+async function loadMemory() {
+    try {
+        const res = await fetch('/api/memory/', { headers: API.headers });
+        const notes = await res.json();
+        const list = document.getElementById('memoryList');
+
+        if (!notes.length) {
+            list.innerHTML = '<p class="text-sm text-muted italic">No memories yet. The agent will learn as you plan!</p>';
+            return;
+        }
+
+        const CATEGORY_ICONS = { goal: '🎯', constraint: '⚠️', preference: '💡', context: '📌', habit: '🔄' };
+        list.innerHTML = notes.map(n => `
+            <div class="flex items-start gap-2 p-2 rounded-lg bg-surface-alt/50">
+                <span class="text-sm">${CATEGORY_ICONS[n.category] || '📝'}</span>
+                <div>
+                    <p class="text-sm">${n.content}</p>
+                    <span class="text-xs text-muted font-mono">${n.category}${n.expires_at ? ' · expires ' + n.expires_at : ''}</span>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error('Failed to load memory:', e);
+    }
+}
+
+// -- Generate plan --
+document.getElementById('planForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = document.getElementById('promptInput').value.trim();
+    if (!message) return;
+
+    const planType = document.getElementById('planType').value;
+    const targetDate = document.getElementById('targetDate').value;
+    const btn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const spinner = document.getElementById('btnSpinner');
+
+    // Loading state
+    btn.disabled = true;
+    btnText.textContent = 'Planning...';
+    spinner.classList.remove('hidden');
+
+    try {
+        const endpoints = { day: '/api/plan/day/', week: '/api/plan/week/', replan: '/api/replan/' };
+        const body = { message };
+        if (planType === 'day') body.target_date = targetDate;
+        if (planType === 'week') body.start_date = targetDate;
+
+        // Send session_id if this is a follow-up
+        if (currentSessionId) {
+            body.session_id = currentSessionId;
+        }
+
+        const res = await fetch(endpoints[planType], {
+            method: 'POST',
+            headers: API.headers,
+            body: JSON.stringify(body),
+        });
+        const data = await res.json();
+
+        // Save session_id for follow-ups
+        if (data.session_id) {
+            currentSessionId = data.session_id;
+            updateSessionBadge();
+        }
+
+        renderSchedule(data);
+        loadTasks();
+        loadMemory();
+    } catch (err) {
+        console.error('Plan failed:', err);
+        alert('Failed to generate plan. Check console.');
+    } finally {
+        btn.disabled = false;
+        updateSessionBadge();
+        spinner.classList.add('hidden');
+    }
+});
+
+// -- Render schedule --
+function renderSchedule(data) {
+    const section = document.getElementById('scheduleSection');
+    section.classList.remove('hidden');
+
+    document.getElementById('summaryText').textContent = data.summary || 'Plan generated';
+    document.getElementById('reasoningText').textContent = data.reasoning || '';
+    document.getElementById('scheduleSummary').textContent = `${data.schedule?.length || 0} blocks`;
+
+    // Timeline
+    const timeline = document.getElementById('scheduleTimeline');
+    if (data.schedule && data.schedule.length) {
+        timeline.innerHTML = data.schedule.map((block, i) => {
+            const colors = TYPE_COLORS[block.type || block.block_type] || TYPE_COLORS.other;
+            return `
+                <div class="relative slide-up" style="animation-delay: ${i * 0.07}s">
+                    <div class="absolute -left-[1.85rem] top-3 w-3 h-3 rounded-full ${colors.dot} border-2 border-white shadow-sm z-10"></div>
+                    <div class="ml-2 mb-3 p-3.5 rounded-xl border ${colors.bg} ${colors.border}">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs font-bold ${colors.text}">${block.time || (block.start_time + '-' + block.end_time)}</span>
+                            <span class="text-xs px-2 py-0.5 rounded-full ${colors.bg} ${colors.text} font-medium border ${colors.border}">${block.type}</span>
+                        </div>
+                        <p class="font-medium text-sm mt-1 text-ink">${block.task}</p>
+                        ${block.reasoning ? `<p class="text-xs text-muted mt-1">${block.reasoning}</p>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } else {
+        timeline.innerHTML = '<p class="text-sm text-muted italic ml-2">No blocks generated. Try adding some tasks first!</p>';
+    }
+
+    // Warnings
+    const warningsBox = document.getElementById('warningsBox');
+    if (data.warnings && data.warnings.length) {
+        warningsBox.classList.remove('hidden');
+        warningsBox.innerHTML = data.warnings.map(w => `
+            <div class="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                <span class="text-amber-500 text-sm mt-0.5">⚠️</span>
+                <p class="text-sm text-amber-800">${w}</p>
+            </div>
+        `).join('');
+    } else {
+        warningsBox.classList.add('hidden');
+    }
+
+    // Unscheduled
+    const unBox = document.getElementById('unscheduledBox');
+    if (data.unscheduled_tasks && data.unscheduled_tasks.length) {
+        unBox.classList.remove('hidden');
+        document.getElementById('unscheduledList').innerHTML =
+            data.unscheduled_tasks.map(t => `<li>${t}</li>`).join('');
+    } else {
+        unBox.classList.add('hidden');
+    }
+
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// -- Init --
+loadTasks();
+loadMemory();
+</script>
+{% endblock %}
