@@ -1,0 +1,194 @@
+{
+  "trace_id": "3a2ff338-0a51-485d-9ef1-6a21d6cfa8ea",
+  "timestamp": "2026-05-06T13:23:18.322089",
+  "user": "lorenzo",
+  "target_date": "2026-05-07",
+  "intent": "replan",
+  "user_message": "sposta la cena alle 21",
+  "status": "success",
+  "error": null,
+  "stats": {
+    "total_duration_ms": 14398,
+    "total_iterations": 2,
+    "total_llm_calls": 3,
+    "total_tool_calls": 3,
+    "total_tokens": 6780,
+    "prompt_tokens": 6119,
+    "completion_tokens": 661,
+    "tool_errors": 0,
+    "retries": 0
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "start_time_ms": 209,
+      "llm_calls": [
+        {
+          "span_id": "d60f2ac4",
+          "type": "llm",
+          "name": "openai_chat_completion",
+          "status": "success",
+          "duration_ms": 1257,
+          "model": "gpt-4o-mini",
+          "prompt_tokens": 1302,
+          "completion_tokens": 31,
+          "total_tokens": 1333,
+          "response_preview": "[tool_calls: get_calendar_events]"
+        }
+      ],
+      "tool_calls": [
+        {
+          "span_id": "4bee1015",
+          "type": "tool",
+          "name": "get_calendar_events",
+          "status": "success",
+          "duration_ms": 5,
+          "input": {
+            "date_from": "2026-05-07",
+            "date_to": "2026-05-07"
+          },
+          "output_preview": "[{\"id\": \"4e72d16e-47b1-4a85-8b7d-c2d2606dc32c\", \"title\": \"Work\", \"event_type\": \"focus\", \"start_time\": \"2026-05-07 07:00\", \"end_time\": \"2026-05-07 16:00\", \"duration_minutes\": 540, \"is_fixed\": false, \"location\": \"\"}, {\"id\": \"ba5951ed-7d1f-4a22-9b9b-19969d4e6c33\", \"title\": \"Focus Work\", \"event_type\": \"... [2169 chars]"
+        }
+      ],
+      "events": [],
+      "end_time_ms": 1474,
+      "duration_ms": 1265
+    },
+    {
+      "iteration": 2,
+      "start_time_ms": 1475,
+      "llm_calls": [
+        {
+          "span_id": "e2d9a907",
+          "type": "llm",
+          "name": "openai_chat_completion",
+          "status": "success",
+          "duration_ms": 3000,
+          "model": "gpt-4o-mini",
+          "prompt_tokens": 2266,
+          "completion_tokens": 139,
+          "total_tokens": 2405,
+          "response_preview": "[tool_calls: move_calendar_event, move_calendar_event]"
+        }
+      ],
+      "tool_calls": [
+        {
+          "span_id": "e5c27cd9",
+          "type": "tool",
+          "name": "move_calendar_event",
+          "status": "success",
+          "duration_ms": 10,
+          "input": {
+            "event_id": "bdd5503c-f3cf-45e0-98bc-4ec5f50879e1",
+            "new_start": "21:00",
+            "new_end": "22:00",
+            "date": "2026-05-07"
+          },
+          "output_preview": "{\"id\": \"bdd5503c-f3cf-45e0-98bc-4ec5f50879e1\", \"title\": \"Dinner\", \"new_start\": \"2026-05-07 21:00\", \"new_end\": \"2026-05-07 22:00\"}"
+        },
+        {
+          "span_id": "7acc2157",
+          "type": "tool",
+          "name": "move_calendar_event",
+          "status": "success",
+          "duration_ms": 7,
+          "input": {
+            "event_id": "c7029de6-d9e3-45e5-beb3-a4c0359cca9d",
+            "new_start": "22:00",
+            "new_end": "23:00",
+            "date": "2026-05-07"
+          },
+          "output_preview": "{\"id\": \"c7029de6-d9e3-45e5-beb3-a4c0359cca9d\", \"title\": \"See girlfriend\", \"new_start\": \"2026-05-07 22:00\", \"new_end\": \"2026-05-07 23:00\"}"
+        }
+      ],
+      "events": [],
+      "end_time_ms": 4495,
+      "duration_ms": 3020
+    }
+  ],
+  "final_output": {
+    "summary": "Moved dinner to 21:00 and adjusted the following event.",
+    "schedule": [
+      {
+        "start_time": "07:00",
+        "end_time": "16:00",
+        "task": "Work",
+        "block_type": "focus",
+        "reasoning": "Scheduled work hours"
+      },
+      {
+        "start_time": "07:00",
+        "end_time": "10:00",
+        "task": "Focus Work",
+        "block_type": "focus",
+        "reasoning": "Scheduled focus work"
+      },
+      {
+        "start_time": "10:00",
+        "end_time": "10:15",
+        "task": "Break",
+        "block_type": "break",
+        "reasoning": "Short break"
+      },
+      {
+        "start_time": "11:00",
+        "end_time": "12:00",
+        "task": "Lunch Break",
+        "block_type": "break",
+        "reasoning": "Scheduled lunch"
+      },
+      {
+        "start_time": "12:00",
+        "end_time": "16:00",
+        "task": "Work Tasks",
+        "block_type": "task",
+        "reasoning": "Scheduled work tasks"
+      },
+      {
+        "start_time": "16:00",
+        "end_time": "17:00",
+        "task": "Gym",
+        "block_type": "gym",
+        "reasoning": "Scheduled gym time"
+      },
+      {
+        "start_time": "16:00",
+        "end_time": "16:15",
+        "task": "Break",
+        "block_type": "break",
+        "reasoning": "Short break"
+      },
+      {
+        "start_time": "16:15",
+        "end_time": "16:30",
+        "task": "Break",
+        "block_type": "break",
+        "reasoning": "Short break"
+      },
+      {
+        "start_time": "21:00",
+        "end_time": "22:00",
+        "task": "Dinner",
+        "block_type": "personal",
+        "reasoning": "Moved dinner to requested time"
+      },
+      {
+        "start_time": "22:00",
+        "end_time": "23:00",
+        "task": "See girlfriend",
+        "block_type": "personal",
+        "reasoning": "Adjusted time after dinner"
+      }
+    ],
+    "warnings": [],
+    "reasoning": "Dinner was moved to 21:00, which required adjusting the time for the following event 'See girlfriend' to 22:00.",
+    "unscheduled_tasks": [],
+    "_agent_meta": {
+      "iterations": 3,
+      "total_tokens": 6780,
+      "duration_ms": 14188,
+      "model": "gpt-4o-mini",
+      "is_followup": true
+    }
+  }
+}

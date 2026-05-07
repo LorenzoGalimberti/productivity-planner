@@ -1,0 +1,73 @@
+{
+  "trace_id": "fc7f94bb-b692-4db1-81fa-30734b103e08",
+  "timestamp": "2026-05-06T13:43:49.428883",
+  "user": "lorenzo",
+  "target_date": "2026-05-07",
+  "intent": "replan",
+  "user_message": "move dinner at 21",
+  "status": "success",
+  "error": null,
+  "stats": {
+    "total_duration_ms": 3411,
+    "total_iterations": 1,
+    "total_llm_calls": 2,
+    "total_tool_calls": 1,
+    "total_tokens": 2699,
+    "prompt_tokens": 2595,
+    "completion_tokens": 104,
+    "tool_errors": 0,
+    "retries": 0
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "start_time_ms": 180,
+      "llm_calls": [
+        {
+          "span_id": "4ffd4b9e",
+          "type": "llm",
+          "name": "openai_chat_completion",
+          "status": "success",
+          "duration_ms": 899,
+          "model": "gpt-4o",
+          "prompt_tokens": 1282,
+          "completion_tokens": 21,
+          "total_tokens": 1303,
+          "response_preview": "[tool_calls: get_calendar_events]"
+        }
+      ],
+      "tool_calls": [
+        {
+          "span_id": "92b1bc10",
+          "type": "tool",
+          "name": "get_calendar_events",
+          "status": "success",
+          "duration_ms": 2,
+          "input": {
+            "date_from": "2026-05-07"
+          },
+          "output_preview": "[]"
+        }
+      ],
+      "events": [],
+      "end_time_ms": 1082,
+      "duration_ms": 902
+    }
+  ],
+  "final_output": {
+    "summary": "No dinner event found to move.",
+    "schedule": [],
+    "warnings": [
+      "No existing dinner event was found on 2026-05-07 to move."
+    ],
+    "reasoning": "The user requested to move a dinner event, but no such event was found in the schedule for the specified date.",
+    "unscheduled_tasks": [],
+    "_agent_meta": {
+      "iterations": 2,
+      "total_tokens": 2699,
+      "duration_ms": 3231,
+      "model": "gpt-4o",
+      "is_followup": true
+    }
+  }
+}

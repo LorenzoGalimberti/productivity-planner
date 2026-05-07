@@ -4,9 +4,10 @@ Designed to be swapped with Todoist / Notion API later.
 """
 
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Optional
 
+from django.db.models import Q
 from django.utils import timezone
 
 from apps.planner.models import Task
@@ -34,7 +35,8 @@ def get_tasks(
         qs = qs.filter(priority=priority_filter)
 
     if due_date:
-        qs = qs.filter(due_date=due_date)
+        # Tasks for this specific date + open tasks (no due date)
+        qs = qs.filter(Q(due_date=due_date) | Q(due_date__isnull=True))
 
     result = []
     for t in qs:
@@ -118,3 +120,19 @@ def postpone_task(user: User, task_id: str, new_due_date: date) -> dict:
         "old_due_date": old_date.isoformat() if old_date else None,
         "new_due_date": new_due_date.isoformat(),
     }
+
+
+def expire_old_tasks(days_threshold: int = 3) -> int:
+    """
+    Auto-expire tasks whose due_date has passed by more than X days.
+    Marks them as cancelled so they don't pollute future plans.
+    """
+    cutoff = date.today() - timedelta(days=days_threshold)
+    old_tasks = Task.objects.filter(
+        status__in=["todo", "in_progress"],
+        due_date__lt=cutoff,
+    )
+    count = old_tasks.update(status="cancelled")
+    if count:
+        logger.info("Auto-expired %d old tasks (due before %s)", count, cutoff)
+    return count

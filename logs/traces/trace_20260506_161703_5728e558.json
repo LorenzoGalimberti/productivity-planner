@@ -1,0 +1,180 @@
+{
+  "trace_id": "5728e558-6ee2-4db3-ac71-bffb478a12d7",
+  "timestamp": "2026-05-06T16:17:03.402019",
+  "user": "lorenzo",
+  "target_date": "2026-05-07",
+  "intent": "replan",
+  "user_message": "sposta la cena alle 21",
+  "status": "success",
+  "error": null,
+  "stats": {
+    "total_duration_ms": 14136,
+    "total_iterations": 2,
+    "total_llm_calls": 3,
+    "total_tool_calls": 3,
+    "total_tokens": 6701,
+    "prompt_tokens": 6099,
+    "completion_tokens": 602,
+    "tool_errors": 0,
+    "retries": 0
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "start_time_ms": 366,
+      "llm_calls": [
+        {
+          "span_id": "e7eaca20",
+          "type": "llm",
+          "name": "openai_chat_completion",
+          "status": "success",
+          "duration_ms": 1254,
+          "model": "gpt-4o-mini",
+          "prompt_tokens": 1404,
+          "completion_tokens": 31,
+          "total_tokens": 1435,
+          "response_preview": "[tool_calls: get_calendar_events]"
+        }
+      ],
+      "tool_calls": [
+        {
+          "span_id": "0e9faf28",
+          "type": "tool",
+          "name": "get_calendar_events",
+          "status": "success",
+          "duration_ms": 3,
+          "input": {
+            "date_from": "2026-05-07",
+            "date_to": "2026-05-07"
+          },
+          "output_preview": "[{\"id\": \"9cbf0494-6f84-4b3b-97a8-bf294671ae86\", \"title\": \"Work (focus hours)\", \"event_type\": \"focus\", \"start_time\": \"2026-05-07 07:00\", \"end_time\": \"2026-05-07 11:00\", \"duration_minutes\": 240, \"is_fixed\": false, \"location\": \"\"}, {\"id\": \"8b901c1f-fa5a-49d9-be3d-e4d8f2b8586e\", \"title\": \"Lunch Break\", ... [1807 chars]"
+        }
+      ],
+      "events": [],
+      "end_time_ms": 1625,
+      "duration_ms": 1259
+    },
+    {
+      "iteration": 2,
+      "start_time_ms": 1625,
+      "llm_calls": [
+        {
+          "span_id": "6eb9a17a",
+          "type": "llm",
+          "name": "openai_chat_completion",
+          "status": "success",
+          "duration_ms": 4657,
+          "model": "gpt-4o-mini",
+          "prompt_tokens": 2198,
+          "completion_tokens": 144,
+          "total_tokens": 2342,
+          "response_preview": "[tool_calls: move_calendar_event, move_calendar_event]"
+        }
+      ],
+      "tool_calls": [
+        {
+          "span_id": "2b5f06ff",
+          "type": "tool",
+          "name": "move_calendar_event",
+          "status": "success",
+          "duration_ms": 8,
+          "input": {
+            "event_id": "a9b2b2f1-3e11-4437-bca5-e5d1c24e500c",
+            "new_start": "21:00",
+            "new_end": "22:00",
+            "date": "2026-05-07"
+          },
+          "output_preview": "{\"id\": \"a9b2b2f1-3e11-4437-bca5-e5d1c24e500c\", \"title\": \"Dinner with girlfriend\", \"new_start\": \"2026-05-07 21:00\", \"new_end\": \"2026-05-07 22:00\"}"
+        },
+        {
+          "span_id": "8f59f9f3",
+          "type": "tool",
+          "name": "move_calendar_event",
+          "status": "success",
+          "duration_ms": 11,
+          "input": {
+            "event_id": "2e93496b-b3b9-4751-9a3a-9e65fb81aa44",
+            "new_start": "22:00",
+            "new_end": "00:00",
+            "date": "2026-05-07"
+          },
+          "output_preview": "{\"id\": \"2e93496b-b3b9-4751-9a3a-9e65fb81aa44\", \"title\": \"Free time / Relax\", \"new_start\": \"2026-05-07 22:00\", \"new_end\": \"2026-05-07 00:00\"}"
+        }
+      ],
+      "events": [],
+      "end_time_ms": 6305,
+      "duration_ms": 4680
+    }
+  ],
+  "final_output": {
+    "summary": "Moved dinner with girlfriend to 21:00",
+    "schedule": [
+      {
+        "start_time": "07:00",
+        "end_time": "11:00",
+        "task": "Work (focus hours)",
+        "block_type": "focus",
+        "reasoning": "Scheduled focus hours."
+      },
+      {
+        "start_time": "11:00",
+        "end_time": "12:00",
+        "task": "Lunch Break",
+        "block_type": "break",
+        "reasoning": "Scheduled lunch break."
+      },
+      {
+        "start_time": "12:00",
+        "end_time": "16:00",
+        "task": "Work (remaining tasks)",
+        "block_type": "focus",
+        "reasoning": "Scheduled remaining work tasks."
+      },
+      {
+        "start_time": "16:00",
+        "end_time": "16:15",
+        "task": "Break",
+        "block_type": "break",
+        "reasoning": "Scheduled short break."
+      },
+      {
+        "start_time": "16:15",
+        "end_time": "17:15",
+        "task": "Gym",
+        "block_type": "gym",
+        "reasoning": "Scheduled gym time."
+      },
+      {
+        "start_time": "17:15",
+        "end_time": "18:00",
+        "task": "Free time / Prepare for dinner",
+        "block_type": "other",
+        "reasoning": "Free time to prepare for dinner."
+      },
+      {
+        "start_time": "21:00",
+        "end_time": "22:00",
+        "task": "Dinner with girlfriend",
+        "block_type": "personal",
+        "reasoning": "Moved dinner to accommodate the request."
+      },
+      {
+        "start_time": "22:00",
+        "end_time": "00:00",
+        "task": "Free time / Relax",
+        "block_type": "personal",
+        "reasoning": "Adjusted free time after dinner."
+      }
+    ],
+    "warnings": [],
+    "reasoning": "Dinner was moved to 21:00, which required adjusting the following free time block.",
+    "unscheduled_tasks": [],
+    "_agent_meta": {
+      "iterations": 3,
+      "total_tokens": 6701,
+      "duration_ms": 13768,
+      "model": "gpt-4o-mini",
+      "is_followup": true
+    }
+  }
+}

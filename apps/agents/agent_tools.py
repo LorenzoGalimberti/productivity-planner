@@ -106,10 +106,15 @@ TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "get_tasks",
-            "description": "Get pending tasks for the user. Returns tasks that are not done or cancelled.",
+            "description": "Get pending tasks for a specific date. Returns tasks due on that date plus tasks with no due date (open tasks). If no date is provided, returns all pending tasks.",
             "parameters": {
                 "type": "object",
-                "properties": {},
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "description": "Filter tasks by due date (YYYY-MM-DD). Recommended: use the target planning date.",
+                    },
+                },
             },
         },
     },
@@ -226,20 +231,13 @@ def execute_tool(user: User, tool_name: str, arguments: dict) -> str:
 
         elif tool_name == "create_calendar_event":
             target_date = date.fromisoformat(arguments["date"])
-            # Handle both "HH:MM" and "YYYY-MM-DD HH:MM" formats
-            start_str = arguments["start_time"]
-            end_str = arguments["end_time"]
-            if " " in start_str:
-                start_str = start_str.split(" ")[-1]
-            if " " in end_str:
-                end_str = end_str.split(" ")[-1]
             start_dt = django_tz.make_aware(datetime.combine(
                 target_date,
-                datetime.strptime(start_str, "%H:%M").time(),
+                datetime.strptime(arguments["start_time"], "%H:%M").time(),
             ))
             end_dt = django_tz.make_aware(datetime.combine(
                 target_date,
-                datetime.strptime(end_str, "%H:%M").time(),
+                datetime.strptime(arguments["end_time"], "%H:%M").time(),
             ))
             result = create_calendar_event(
                 user=user,
@@ -253,7 +251,6 @@ def execute_tool(user: User, tool_name: str, arguments: dict) -> str:
 
         elif tool_name == "move_calendar_event":
             target_date = date.fromisoformat(arguments["date"])
-            # Handle both "HH:MM" and "YYYY-MM-DD HH:MM" formats
             new_start_str = arguments["new_start"]
             new_end_str = arguments["new_end"]
             if " " in new_start_str:
@@ -274,7 +271,10 @@ def execute_tool(user: User, tool_name: str, arguments: dict) -> str:
             result = delete_calendar_event(user, arguments["event_id"])
 
         elif tool_name == "get_tasks":
-            result = get_tasks(user)
+            due_date = None
+            if arguments.get("date"):
+                due_date = date.fromisoformat(arguments["date"])
+            result = get_tasks(user, due_date=due_date)
 
         elif tool_name == "create_task":
             result = create_task(
@@ -361,3 +361,4 @@ def execute_tool(user: User, tool_name: str, arguments: dict) -> str:
     except Exception as e:
         logger.exception("Tool '%s' failed: %s", tool_name, e)
         return json.dumps({"error": str(e)})
+    

@@ -2,6 +2,7 @@ import logging
 from datetime import date, datetime, time, timedelta
 from typing import Optional
 from uuid import UUID
+from django.utils.timezone import localtime
 
 from django.utils import timezone
 
@@ -32,8 +33,8 @@ def get_calendar_events(
             "id": str(e.id),
             "title": e.title,
             "event_type": e.event_type,
-            "start_time": e.start_time.strftime("%Y-%m-%d %H:%M"),
-            "end_time": e.end_time.strftime("%Y-%m-%d %H:%M"),
+            "start_time": localtime(e.start_time).strftime("%Y-%m-%d %H:%M"),
+            "end_time": localtime(e.end_time).strftime("%Y-%m-%d %H:%M"),
             "duration_minutes": e.duration_minutes,
             "is_fixed": e.is_fixed,
             "location": e.location,
